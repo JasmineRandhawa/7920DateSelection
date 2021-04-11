@@ -23,9 +23,10 @@ public class DateClass {
         }
         return null;
     }
+
     public static int GetDayOfMonth() {
 
-       int dayOfMonth =0;
+        int dayOfMonth = 0;
         Date c = Calendar.getInstance().getTime();
         System.out.println("Current time => " + c);
         SimpleDateFormat dtf = new SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault());
@@ -150,7 +151,6 @@ public class DateClass {
         return monthName;
     }
 
-
     public static String GetDayOFWeek(String dateStr) {
 
         Date date = GetDateStr(dateStr);
@@ -158,9 +158,8 @@ public class DateClass {
         if (date != null) {
             calendar.setTime(date);
             int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-            dayOfWeek = dayOfWeek-1;
-            if(dayOfWeek == -1)
-            {
+            dayOfWeek = dayOfWeek - 1;
+            if (dayOfWeek == -1) {
                 dayOfWeek = 6;
             }
             String dayOfWeekStr = DateClass.GetDayName(dayOfWeek);

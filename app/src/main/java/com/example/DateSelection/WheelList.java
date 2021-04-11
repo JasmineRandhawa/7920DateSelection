@@ -10,6 +10,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -42,6 +43,22 @@ public class WheelList extends ListView implements AbsListView.OnScrollListener 
         setOnScrollListener(this);
         setClipChildren(false);
         setEnableInfiniteScrolling(true);
+    }
+
+    public static ArrayAdapter<String> GetDaysAdaptor(Context context) {
+        ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(context, R.layout.wheel_list_item);
+        for (int i = 0; i < 31; i++) {
+            daysAdapter.add(String.format((i <= 8 ? "0" : "") + (1 + i)));
+        }
+        return daysAdapter;
+    }
+
+    public static ArrayAdapter<String> GetYearsAdaptor(Context context) {
+        ArrayAdapter<String> yearAdaptor = new ArrayAdapter<String>(context, R.layout.wheel_list_item);
+        for (int i = 0; i < 146; i++) {
+            yearAdaptor.add(String.format(""+ (1900+i)));
+        }
+        return yearAdaptor;
     }
 
     //get set methods

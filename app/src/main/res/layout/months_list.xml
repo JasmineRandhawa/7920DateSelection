@@ -61,7 +61,7 @@
         android:textAlignment="center"
         android:textColor="@color/White"
         android:textSize="21dp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
     <com.example.DateSelection.MonthListItem
         android:layout_width="130px"
@@ -109,7 +109,7 @@
         android:textAlignment="center"
         android:textColor="@color/White"
         android:textSize="21dp"
-        android:textStyle="bold"/>
+        android:textStyle="bold" />
 
 
     <com.example.DateSelection.MonthListItem
