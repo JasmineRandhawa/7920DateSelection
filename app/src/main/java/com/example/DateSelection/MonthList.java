@@ -17,7 +17,6 @@ import android.widget.TextView;
 import androidx.annotation.RequiresApi;
 
 public class MonthList extends ViewGroup {
-    MonthList monthlist;
     private OnClickListener onClickListener = null;
     private OnSelectListener onSelectListener = null;
     private OnScrollListener onScrollListener = null;
