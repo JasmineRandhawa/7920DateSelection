@@ -20,13 +20,13 @@ import android.widget.TextView;
 public class WheelList extends ListView implements AbsListView.OnScrollListener {
 
     //class fields
-    private int wheelListItemHeight = 0;
-    private WheelListListener wheelListener;
-    private WheelListAdaptor wheelAdaptor;
+    private final int wheelListScrollDuration = 50;
+    int wheelRadius = 0;
+    private WheelListAdapter wheelListAdapter;
     private boolean isInfiniteScrollingEnabled = true;
-    private double wheelRadius = -1;
-    private final int wheelScrollDuration = 50;
+    private int wheelListItemHeight = 0;
     private WheelListListener.ItemAllignment wheelListAlignment = WheelListListener.ItemAllignment.Left;
+    private WheelListListener wheelListListener;
 
     //constructor
     public WheelList(Context context) {
@@ -39,12 +39,12 @@ public class WheelList extends ListView implements AbsListView.OnScrollListener 
 
     public WheelList(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-
         setOnScrollListener(this);
         setClipChildren(false);
-        setEnableInfiniteScrolling(true);
+        setInfiniteScroll(true);
     }
 
+    //Adapters
     public static ArrayAdapter<String> GetDaysAdaptor(Context context) {
         ArrayAdapter<String> daysAdapter = new ArrayAdapter<String>(context, R.layout.wheel_list_item);
         for (int i = 0; i < 31; i++) {
@@ -56,35 +56,43 @@ public class WheelList extends ListView implements AbsListView.OnScrollListener 
     public static ArrayAdapter<String> GetYearsAdaptor(Context context) {
         ArrayAdapter<String> yearAdaptor = new ArrayAdapter<String>(context, R.layout.wheel_list_item);
         for (int i = 0; i < 146; i++) {
-            yearAdaptor.add(String.format(""+ (1900+i)));
+            yearAdaptor.add(String.format("" + (1900 + i)));
         }
         return yearAdaptor;
     }
 
     //get set methods
-    public void setWheelListAdaptor(ListAdapter adapter) {
-        wheelAdaptor = new WheelListAdaptor(adapter);
-        wheelAdaptor.setEnableInfiniteScrolling(isInfiniteScrollingEnabled);
-        super.setAdapter(wheelAdaptor);
+    public int getWheelListItemHeight() {
+        return (wheelListItemHeight == 0 ? ((getChildAt(0) != null) ? (getChildAt(0)).getHeight() : wheelListItemHeight)
+                : wheelListItemHeight);
     }
 
-    public void setWheelListListener(WheelListListener circularListViewListener) {
-        this.wheelListener = circularListViewListener;
+    public int getCenter() {
+        for (int i = 0; i < getChildCount(); i++)
+            if (getChildAt(i) != null && getChildAt(i).getTop() <= getHeight() / 2
+                    && getChildAt(i).getTop() + getChildAt(i).getHeight() >= getHeight() / 2)
+                return getFirstVisiblePosition() + i;
+        return -1;
     }
 
-    public void setEnableInfiniteScrolling(boolean enableInfiniteScrolling) {
-        isInfiniteScrollingEnabled = enableInfiniteScrolling;
-        if (wheelAdaptor != null) {
-            wheelAdaptor.setEnableInfiniteScrolling(enableInfiniteScrolling);
+    public View getCenterItem() {
+        if (getCenter() != -1) {
+            return getChildAt(getCenter() - getFirstVisiblePosition() - 2);
         }
-        if (isInfiniteScrollingEnabled) {
-            setHorizontalScrollBarEnabled(false);
-            setVerticalScrollBarEnabled(false);
-        }
+        return null;
     }
 
-    public void setWheelListAlignment(
-            WheelListListener.ItemAllignment listAlignment) {
+    public void setWheelListAdaptor(ListAdapter listAdapter) {
+        wheelListAdapter = new WheelListAdapter(listAdapter);
+        wheelListAdapter.enableInfiniteScroll(isInfiniteScrollingEnabled);
+        super.setAdapter(wheelListAdapter);
+    }
+
+    public void setWheelListListener(WheelListListener listViewListener) {
+        this.wheelListListener = listViewListener;
+    }
+
+    public void setWheelListAlignment(WheelListListener.ItemAllignment listAlignment) {
         if (wheelListAlignment != listAlignment) {
             wheelListAlignment = listAlignment;
             requestLayout();
@@ -93,43 +101,56 @@ public class WheelList extends ListView implements AbsListView.OnScrollListener 
 
     public void setWheelListRadius(double radius) {
         if (this.wheelRadius != radius) {
-            this.wheelRadius = radius;
+            this.wheelRadius = (int) radius;
             requestLayout();
         }
     }
 
-    public int getWheelListItemHeight() {
-        if (wheelListItemHeight == 0) {
-            View child = getChildAt(0);
-            if (child != null) {
-                wheelListItemHeight = child.getHeight();
-            }
+    public void setInfiniteScroll(boolean enableInfiniteScroll) {
+        isInfiniteScrollingEnabled = enableInfiniteScroll;
+        if (wheelListAdapter != null)
+            wheelListAdapter.enableInfiniteScroll(enableInfiniteScroll);
+        if (isInfiniteScrollingEnabled) {
+            setVerticalScrollBarEnabled(false);
+            setHorizontalScrollBarEnabled(false);
         }
-        return wheelListItemHeight;
     }
 
+    public void scrollFirstItemToCenter() {
+        if (!isInfiniteScrollingEnabled)
+            return;
+        int topHeight = 0;
+        if (getWheelListItemHeight() > 0)
+            topHeight = getHeight() / 2 - getWheelListItemHeight() / 2;
+        if (wheelListAdapter.getItemCount() > 0)
+            setSelectionFromTop(wheelListAdapter.getItemCount(), topHeight);
+    }
 
+    public void scrollSelectedItemToCenter(int index) {
+        if (!isInfiniteScrollingEnabled || wheelListAdapter.getItemCount() == 0)
+            return;
+        index = index % wheelListAdapter.getItemCount();
+        int topHeight = 0;
+        if (getCenter() % wheelListAdapter.getItemCount() == index && getCenterItem() != null)
+            topHeight = getCenterItem().getTop();
+        if (getWheelListItemHeight() > 0)
+            topHeight = getHeight() / 2 - getWheelListItemHeight() / 2;
+        setSelectionFromTop(index + wheelListAdapter.getItemCount(), topHeight);
+    }
+
+    //events
     @TargetApi(Build.VERSION_CODES.FROYO)
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (isInfiniteScrollingEnabled) {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
                 switch (event.getKeyCode()) {
-                    case KeyEvent.KEYCODE_DPAD_UP:
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-                            smoothScrollBy(wheelListItemHeight, wheelScrollDuration);
-                            return true;
-                        }
-                        break;
                     case KeyEvent.KEYCODE_DPAD_DOWN:
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
-                            smoothScrollBy(-wheelListItemHeight, wheelScrollDuration);
-                            return true;
-                        }
-                        break;
-                    default:
-                        break;
-
+                        smoothScrollBy(-wheelListItemHeight, wheelListScrollDuration);
+                        return true;
+                    case KeyEvent.KEYCODE_DPAD_UP:
+                        smoothScrollBy(wheelListItemHeight, wheelListScrollDuration);
+                        return true;
                 }
             }
         }
@@ -138,272 +159,154 @@ public class WheelList extends ListView implements AbsListView.OnScrollListener 
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
-        if (scrollState == SCROLL_STATE_IDLE) {
-            if (!isInTouchMode()) {
-                moveSelectedItemToCenter(getCentralPosition());
-            }
-        }
+        if (!isInTouchMode() && scrollState == SCROLL_STATE_IDLE)
+            scrollSelectedItemToCenter(getCenter());
     }
 
     @Override
-    public void onScroll(AbsListView wheelList, int firstVisibleItem, int visibleItemCount,
-                         int totalItemCount) {
-        if (!isInfiniteScrollingEnabled) {
+    public void onScroll(AbsListView innerList, int firstItem, int itemDisplayed, int totalItems) {
+        if (!isInfiniteScrollingEnabled || this.getChildAt(0) == null || wheelListAdapter.getItemCount() == 0)
             return;
-        }
 
-        View itemView = this.getChildAt(0);
-        if (itemView == null) {
-            return;
-        }
-        int realTotalItemCount = wheelAdaptor.getRealCount();
-        if (realTotalItemCount == 0) {
-            return;
-        }
+        if (wheelListItemHeight == 0)
+            wheelListItemHeight = this.getChildAt(0).getHeight();
+
+        if (firstItem == 0)
+            this.setSelectionFromTop(wheelListAdapter.getItemCount(), this.getChildAt(0).getTop());
 
 
-        if (wheelListItemHeight == 0) {
-            wheelListItemHeight = itemView.getHeight();
-        }
-
-        if (firstVisibleItem == 0) {
-            // scroll one unit
-            this.setSelectionFromTop(realTotalItemCount, itemView.getTop());
-        }
-
-        if (totalItemCount == firstVisibleItem + visibleItemCount) {
-            // back one unit
-            this.setSelectionFromTop(firstVisibleItem - realTotalItemCount,
-                    itemView.getTop());
-        }
+        if (totalItems == firstItem + itemDisplayed)
+            this.setSelectionFromTop(firstItem - wheelListAdapter.getItemCount(),
+                    this.getChildAt(0).getTop());
 
 
         if (wheelListAlignment != WheelListListener.ItemAllignment.None) {
-
-            double viewHalfHeight = wheelList.getHeight() / 2.0f;
-
-            double vRadius = wheelList.getHeight();
-            double hRadius = wheelList.getWidth();
-
-            double yRadius = (wheelList.getHeight() + wheelListItemHeight) / 2.0f;
-            double xRadius = (vRadius < hRadius) ? vRadius : hRadius;
-            if (wheelRadius > 0) {
-                xRadius = wheelRadius;
-            }
-
-            for (int i = 0; i < visibleItemCount; i++) {
-                itemView = this.getChildAt(i);
-                if (itemView != null) {
-                    double y = Math.abs(viewHalfHeight - (itemView.getTop() + (itemView.getHeight() / 2.0f)));
-                    y = Math.min(y, yRadius);
-                    double angle = Math.asin(y / yRadius);
-                    double x = xRadius * Math.cos(angle);
-
+            int vRad = (innerList.getHeight() + wheelListItemHeight) / 2;
+            int hRad = (innerList.getHeight() < innerList.getWidth()) ? innerList.getHeight() : innerList.getWidth();
+            if (wheelRadius > 0)
+                hRad = wheelRadius;
+            for (int i = 0; i < itemDisplayed; i++) {
+                if (this.getChildAt(i) != null) {
+                    double yVal = Math.min(Math.abs(innerList.getHeight() / 2 - (this.getChildAt(i).getTop() + (this.getChildAt(i).getHeight() / 2))), vRad);
+                    double xVal = hRad * Math.cos(Math.asin(yVal / vRad));
+                    int textViewScrollOffset = 70;
                     if (wheelListAlignment == WheelListListener.ItemAllignment.Left) {
-                        x -= xRadius;
-                        //itemView.setLayoutParams(new LayoutParams(90, itemView.getHeight()));
-                        View temp = itemView;
-                        itemView.post(new Runnable() {
-                            @Override public void run() {
-                                temp.setLayoutParams(new LayoutParams(100, temp.getHeight()));
-                                ((TextView)temp).setTextSize(TypedValue.COMPLEX_UNIT_PX,40);
-                            }
-                        });
-                        int itemWidth =itemView.getWidth();
-                        int xPos=(int)(itemWidth-x);
-                        itemView.setX(xPos);
-                        itemView.scrollTo((int) xPos/70, -xPos/70);
-                        itemView.setTextAlignment(TEXT_ALIGNMENT_CENTER);
-                        itemView.setBackgroundResource(R.drawable.wheel_list_item_design);
-
+                        xVal = xVal - hRad;
                     } else {
-                        x = xRadius / 2 - x;
-                        View temp = itemView;
-                        itemView.post(new Runnable() {
-                            @Override public void run() {
-                                temp.setLayoutParams(new LayoutParams(100, temp.getHeight()));
-                                ((TextView)temp).setTextSize(TypedValue.COMPLEX_UNIT_PX,40);
-                            }
-                        });
-                        int itemWidth =itemView.getWidth();
-                        int xPos=(int)(itemWidth-x);
-                        itemView.setX(xPos);
-                        itemView.scrollTo((int)xPos/90, -xPos/90);
-                        itemView.setTextAlignment(TEXT_ALIGNMENT_CENTER);
-                        itemView.setBackgroundResource(R.drawable.wheel_list_item_design);
+                        textViewScrollOffset = 90;
+                        xVal = hRad / 2 - xVal;
                     }
-
-
+                    View temp = this.getChildAt(i);
+                    this.getChildAt(i).post(() -> {
+                        temp.setLayoutParams(new LayoutParams(100, temp.getHeight()));
+                        ((TextView) temp).setTextSize(TypedValue.COMPLEX_UNIT_PX, 35);
+                    });
+                    this.getChildAt(i).setX((int) (this.getChildAt(i).getWidth() - xVal));
+                    this.getChildAt(i).scrollTo((int) (int) (this.getChildAt(i).getWidth() - xVal) / textViewScrollOffset, -(int) (this.getChildAt(i).getWidth() - xVal) / textViewScrollOffset);
+                    this.getChildAt(i).setTextAlignment(TEXT_ALIGNMENT_CENTER);
+                    this.getChildAt(i).setBackgroundResource(R.drawable.wheel_list_item_design);
                 }
             }
         }
-        else {
-            for (int i = 0; i < visibleItemCount; i++) {
-                itemView = this.getChildAt(i);
-                if (itemView != null) {
-                    int xPos=(int)(90);
-                    itemView.scrollTo(0, 0);
-                    itemView.setX(xPos/60);
-                    itemView.setTextAlignment(TEXT_ALIGNMENT_CENTER);
-                    itemView.setBackgroundResource(R.drawable.selected_item_design);
-                    ((TextView)itemView).setTextColor(getResources().getColor(R.color.Red));
-                }
-            }
-        }
+        if (wheelListListener != null)
+            wheelListListener.onScrollEnd(this, firstItem, itemDisplayed, totalItems);
 
+    }
 
-        if (wheelListener != null) {
-            wheelListener.onWheelScrollFinished(this, firstVisibleItem, visibleItemCount, totalItemCount);
+    //Listener
+    interface WheelListListener {
+        void onScrollEnd(WheelList wheelList,
+                         int firstItem,
+                         int itemDisplayed,
+                         int totalItems);
+
+        enum ItemAllignment {
+            None,
+            Left,
+            Right
         }
     }
 
-    public int getCentralPosition() {
-        double vCenterPos = getHeight() / 2.0f;
-        for (int i = 0; i < getChildCount(); i++) {
-            View child = getChildAt(i);
-            if (child != null) {
-                if (child.getTop() <= vCenterPos
-                        && child.getTop() + child.getHeight() >= vCenterPos) {
-                    return getFirstVisiblePosition() + i;
-                }
-            }
-        }
-        return -1;
-    }
+    class WheelListAdapter implements ListAdapter {
 
-    public View getListItemAtCenter() {
-        int pos = getCentralPosition();
-        if (pos != -1) {
-            return getChildAt(pos - getFirstVisiblePosition() - 2);
-        }
-        return null;
-    }
+        private final ListAdapter wheelListAdapter;
+        private boolean infiniteScrolling = true;
 
-    public void scrollFirstListItemToCenter() {
-        if (!isInfiniteScrollingEnabled) {
-            return;
-        }
-        int realTotalItemCount = wheelAdaptor.getRealCount();
-        if (realTotalItemCount > 0) {
-            setSelectionFromTop(realTotalItemCount, getTopAreaOfCentralWheelItem());
-        }
-    }
-
-    public int getTopAreaOfCentralWheelItem() {
-        int selectedWheelItemHeight = getWheelListItemHeight();
-        if (selectedWheelItemHeight > 0) {
-            return getHeight() / 2 - selectedWheelItemHeight / 2;
-        }
-        return 0;
-    }
-
-    public void moveSelectedItemToCenter(int position) {
-        if (!isInfiniteScrollingEnabled) {
-            return;
+        public WheelListAdapter(ListAdapter listAdapter) {
+            wheelListAdapter = listAdapter;
         }
 
-        int realTotalItemCount = wheelAdaptor.getRealCount();
-        if (realTotalItemCount == 0) {
-            return;
+        private void enableInfiniteScroll(boolean infiniteScroll) {
+            infiniteScrolling = infiniteScroll;
         }
 
-        position = position % realTotalItemCount;
-        int centralPosition = getCentralPosition() % realTotalItemCount;
-
-        int y = getTopAreaOfCentralWheelItem();
-        if (centralPosition == position) {
-            View centralView = getListItemAtCenter();
-            y = centralView.getTop();
-        }
-        setSelectionFromTop(position + realTotalItemCount, y);
-    }
-
-    class WheelListAdaptor implements ListAdapter {
-        private int REPEAT_COUNT = 10;
-
-        private boolean mEnableInfiniteScrolling = true;
-
-        private ListAdapter listAdapter;
-
-        //constructor
-        public WheelListAdaptor(ListAdapter wheelListAdapter) {
-            listAdapter = wheelListAdapter;
+        public int getItemCount() {
+            return wheelListAdapter.getCount();
         }
 
-
-        private void setEnableInfiniteScrolling(boolean enableInfiniteScrolling) {
-            mEnableInfiniteScrolling = enableInfiniteScrolling;
-        }
-
-        public int getRealCount() {
-            return listAdapter.getCount();
-        }
-
-        public int positionToIndex(int position) {
-            int count = listAdapter.getCount();
-            return (count == 0) ? 0 : position % count;
+        public int goToIndex(int position) {
+            return (wheelListAdapter.getCount() == 0) ? 0 : position % wheelListAdapter.getCount();
         }
 
         @Override
         public void registerDataSetObserver(DataSetObserver observer) {
-            listAdapter.registerDataSetObserver(observer);
+            wheelListAdapter.registerDataSetObserver(observer);
         }
 
         @Override
         public void unregisterDataSetObserver(DataSetObserver observer) {
-            listAdapter.unregisterDataSetObserver(observer);
+            wheelListAdapter.unregisterDataSetObserver(observer);
         }
 
         @Override
         public int getCount() {
-            int count = listAdapter.getCount();
-            return (mEnableInfiniteScrolling) ? count * REPEAT_COUNT : count;
+            return (infiniteScrolling) ? wheelListAdapter.getCount() * 10 : wheelListAdapter.getCount();
         }
 
         @Override
-        public Object getItem(int position) {
-            return listAdapter.getItem(this.positionToIndex(position));
+        public Object getItem(int index) {
+            return wheelListAdapter.getItem(this.goToIndex(index));
         }
 
         @Override
-        public long getItemId(int position) {
-            return listAdapter.getItemId(this.positionToIndex(position));
+        public long getItemId(int index) {
+            return wheelListAdapter.getItemId(this.goToIndex(index));
         }
 
         @Override
         public boolean hasStableIds() {
-            return listAdapter.hasStableIds();
+            return wheelListAdapter.hasStableIds();
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            return listAdapter.getView(this.positionToIndex(position), convertView, parent);
+        public View getView(int index, View convertView, ViewGroup parent) {
+            return wheelListAdapter.getView(this.goToIndex(index), convertView, parent);
         }
 
         @Override
-        public int getItemViewType(int position) {
-            return listAdapter.getItemViewType(this.positionToIndex(position));
+        public int getItemViewType(int index) {
+            return wheelListAdapter.getItemViewType(this.goToIndex(index));
         }
 
         @Override
         public int getViewTypeCount() {
-            return listAdapter.getViewTypeCount();
+            return wheelListAdapter.getViewTypeCount();
         }
-
 
         @Override
         public boolean isEmpty() {
-            return listAdapter.isEmpty();
+            return wheelListAdapter.isEmpty();
         }
 
         @Override
         public boolean areAllItemsEnabled() {
-            return listAdapter.areAllItemsEnabled();
+            return wheelListAdapter.areAllItemsEnabled();
         }
 
         @Override
-        public boolean isEnabled(int position) {
-            return listAdapter.isEnabled(this.positionToIndex(position));
+        public boolean isEnabled(int index) {
+            return wheelListAdapter.isEnabled(this.goToIndex(index));
         }
     }
 }
+

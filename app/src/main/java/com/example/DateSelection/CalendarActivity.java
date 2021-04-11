@@ -94,9 +94,9 @@ public class CalendarActivity extends AppCompatActivity implements MonthList.OnS
         // set up date list
         daysList.setWheelListRadius(dayListRadius);
         daysList.setWheelListAdaptor(WheelList.GetDaysAdaptor(this));
-        daysList.scrollFirstListItemToCenter();
+        daysList.scrollFirstItemToCenter();
         daysList.setWheelListListener((daysList, firstVisibleItem, visibleItemCount, totalItemCount) -> refreshCircular(daysList, "day", "Update"));
-        daysList.setWheelListAlignment(WheelListListener.ItemAllignment.Left);
+        daysList.setWheelListAlignment(WheelList.WheelListListener.ItemAllignment.Left);
 
         // set up month list
         monthsList.setOnSelectListener(this, monthsList);
@@ -121,15 +121,15 @@ public class CalendarActivity extends AppCompatActivity implements MonthList.OnS
         // set up years list
         yearsList.setWheelListRadius(yearListRadius);
         yearsList.setWheelListAdaptor(WheelList.GetYearsAdaptor(this));
-        yearsList.scrollFirstListItemToCenter();
+        yearsList.scrollFirstItemToCenter();
         yearsList.setWheelListListener((yearList, firstVisibleItem, visibleItemCount, totalItemCount) -> refreshCircular(yearList, "year", "Update"));
-        yearsList.setWheelListAlignment(WheelListListener.ItemAllignment.Right);
+        yearsList.setWheelListAlignment(WheelList.WheelListListener.ItemAllignment.Right);
         calendar.setTimeInMillis(System.currentTimeMillis());
-        daysList.scrollFirstListItemToCenter();
+        daysList.scrollFirstItemToCenter();
         int dayOfMonth = DateClass.GetDayOfMonth() - 2;
-        daysList.moveSelectedItemToCenter(dayOfMonth);
-        yearsList.scrollFirstListItemToCenter();
-        yearsList.moveSelectedItemToCenter(calendar.get(Calendar.YEAR) - 3);
+        daysList.scrollSelectedItemToCenter(dayOfMonth);
+        yearsList.scrollFirstItemToCenter();
+        yearsList.scrollSelectedItemToCenter(calendar.get(Calendar.YEAR) - 3);
     }
 
     //animation code
@@ -208,7 +208,7 @@ public class CalendarActivity extends AppCompatActivity implements MonthList.OnS
     }
 
     private void refreshCircular(WheelList list, String fieldName, String display) {
-        TextView listSelectedItem = (TextView) list.getListItemAtCenter();
+        TextView listSelectedItem = (TextView) list.getCenterItem();
 
         for (int i = 0; i < list.getChildCount(); i++) {
             TextView listItem = (TextView) list.getChildAt(i);
