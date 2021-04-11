@@ -6,6 +6,7 @@
     android:layout_height="430dp"
     android:background="@android:color/white"
     android:orientation="vertical">
+
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:circle="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -37,13 +38,14 @@
             android:id="@+id/OkButton"
             android:layout_width="60dp"
             android:layout_height="50dp"
-            android:background="@color/Green"
             android:layout_marginLeft="60dp"
+            android:background="@color/Green"
             android:text="OK"
             android:textSize="15dp"
             android:visibility="gone" />
 
     </LinearLayout>
+
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:circle="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -127,11 +129,8 @@
                     android:listSelector="@android:color/transparent" />
             </RelativeLayout>
 
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-
     </LinearLayout>
-
 
 </LinearLayout>

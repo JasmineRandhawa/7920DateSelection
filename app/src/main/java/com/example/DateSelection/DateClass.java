@@ -158,7 +158,15 @@ public class DateClass {
         if (date != null) {
             calendar.setTime(date);
             int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
-            return DateClass.GetDayName(dayOfWeek);
+            dayOfWeek = dayOfWeek-1;
+            if(dayOfWeek == -1)
+            {
+                dayOfWeek = 6;
+            }
+            String dayOfWeekStr = DateClass.GetDayName(dayOfWeek);
+            if (!dayOfWeekStr.equals(""))
+                dayOfWeekStr = dayOfWeekStr.substring(0, 3);
+            return dayOfWeekStr;
         } else
             return "";
     }

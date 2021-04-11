@@ -205,7 +205,6 @@ public class CalendarActivity extends AppCompatActivity implements MonthList.OnI
         animation.setDuration(250);
         selectedMonthListItem.startAnimation(animation);
 
-        if (((MonthListItem) selectedMonthListItem).getName().equals("month")) {
             for (int i = 0; i < monthsList.getChildCount(); i++) {
                 TextView monthListItem = (TextView) monthsList.getChildAt(i);
                 if (monthListItem != null && monthListItem != selectedMonthListItem) {
@@ -214,7 +213,6 @@ public class CalendarActivity extends AppCompatActivity implements MonthList.OnI
                     monthListItem.setElevation(2.0f);
                 }
             }
-        }
         selectedMonthListItem.setBackgroundResource(R.drawable.selected_item_design);
         ((TextView) selectedMonthListItem).setTextColor(getResources().getColor(R.color.Red));
         ((TextView) selectedMonthListItem).setHeight(135);
@@ -249,8 +247,7 @@ public class CalendarActivity extends AppCompatActivity implements MonthList.OnI
         if (!monthSelected.equals("") && display.equals("Update")) {
             String dayOfWeek = DateClass.GetDayOFWeek(daySelected + "-" +
                     DateClass.GetMonthIndex(monthSelected) + "-" + yearSelected);
-            if (!dayOfWeek.equals(""))
-                selectedDateTextView.setText(dayOfWeek.substring(0, 3) + " " +
+                selectedDateTextView.setText(dayOfWeek + " " +
                         daySelected + "-" + monthSelected + "-" + yearSelected);
         }
     }

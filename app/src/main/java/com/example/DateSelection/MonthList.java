@@ -98,26 +98,13 @@ public class MonthList extends ViewGroup {
                 new MyGestureListener());
         quadrantTouched = new boolean[]{false, false, false, false, false};
 
-        if (attrs != null) {
-            TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.CircleLayout);
-
-            speed = a.getInt(R.styleable.CircleLayout_speed, speed);
-            radius = a.getDimension(R.styleable.CircleLayout_radius, radius);
-            isRotating = a.getBoolean(R.styleable.CircleLayout_isRotating, isRotating);
-
-            // The angle where the first menu item will be drawn
-            angle = a.getInt(R.styleable.CircleLayout_firstChildPosition, (int) angle);
+        if (attrs != null) { ;
             for (FirstChildPosition pos : FirstChildPosition.values()) {
                 if (pos.getAngle() == angle) {
                     firstChildPosition = pos;
                     break;
                 }
             }
-
-            a.recycle();
-
-            // Needed for the ViewGroup to be drawn
-            setWillNotDraw(false);
         }
     }
 

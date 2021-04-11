@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:circle="http://schemas.android.com/apk/res-auto"
     android:layout_width="180dp"
     android:layout_height="240dp">
 
-
-
     <com.example.DateSelection.MonthListItem
-        android:id="@+id/month_apr"
         android:layout_width="130px"
         android:layout_height="90px"
         android:background="@drawable/month"
@@ -16,12 +12,10 @@
         android:text="Apr"
         android:textAlignment="center"
         android:textColor="@color/White"
-             android:textSize="21dp"
-        android:textStyle="bold"
-        circle:name="month" />
+        android:textSize="21dp"
+        android:textStyle="bold" />
 
     <com.example.DateSelection.MonthListItem
-        android:id="@+id/month_may"
         android:layout_width="130px"
         android:layout_height="90px"
         android:background="@drawable/month"
@@ -30,12 +24,10 @@
         android:text="May"
         android:textAlignment="center"
         android:textColor="@color/White"
-             android:textSize="21dp"
-        android:textStyle="bold"
-        circle:name="month" />
+        android:textSize="21dp"
+        android:textStyle="bold" />
 
     <com.example.DateSelection.MonthListItem
-        android:id="@+id/month_jun"
         android:layout_width="130px"
         android:layout_height="90px"
         android:background="@drawable/month"
@@ -44,12 +36,10 @@
         android:text="Jun"
         android:textAlignment="center"
         android:textColor="@color/White"
-             android:textSize="21dp"
-        android:textStyle="bold"
-        circle:name="month" />
+        android:textSize="21dp"
+        android:textStyle="bold" />
 
     <com.example.DateSelection.MonthListItem
-        android:id="@+id/month_jul"
         android:layout_width="130px"
         android:layout_height="90px"
         android:background="@drawable/month"
@@ -58,12 +48,10 @@
         android:text="Jul"
         android:textAlignment="center"
         android:textColor="@color/White"
-             android:textSize="21dp"
-        android:textStyle="bold"
-        circle:name="month" />
+        android:textSize="21dp"
+        android:textStyle="bold" />
 
     <com.example.DateSelection.MonthListItem
-        android:id="@+id/month_aug"
         android:layout_width="130px"
         android:layout_height="90px"
         android:background="@drawable/month"
@@ -72,12 +60,10 @@
         android:text="Aug"
         android:textAlignment="center"
         android:textColor="@color/White"
-             android:textSize="21dp"
-        android:textStyle="bold"
-        circle:name="month" />
+        android:textSize="21dp"
+        android:textStyle="bold"/>
 
     <com.example.DateSelection.MonthListItem
-        android:id="@+id/month_sep"
         android:layout_width="130px"
         android:layout_height="90px"
         android:background="@drawable/month"
@@ -86,12 +72,10 @@
         android:text="Sep"
         android:textAlignment="center"
         android:textColor="@color/White"
-             android:textSize="21dp"
-        android:textStyle="bold"
-        circle:name="month" />
+        android:textSize="21dp"
+        android:textStyle="bold" />
 
     <com.example.DateSelection.MonthListItem
-        android:id="@+id/month_oct"
         android:layout_width="130px"
         android:layout_height="90px"
         android:background="@drawable/month"
@@ -100,12 +84,10 @@
         android:text="Oct"
         android:textAlignment="center"
         android:textColor="@color/White"
-             android:textSize="21dp"
-        android:textStyle="bold"
-        circle:name="month" />
+        android:textSize="21dp"
+        android:textStyle="bold" />
 
     <com.example.DateSelection.MonthListItem
-        android:id="@+id/month_nov"
         android:layout_width="130px"
         android:layout_height="90px"
         android:background="@drawable/month"
@@ -114,12 +96,10 @@
         android:text="Nov"
         android:textAlignment="center"
         android:textColor="@color/White"
-             android:textSize="21dp"
-        android:textStyle="bold"
-        circle:name="month" />
+        android:textSize="21dp"
+        android:textStyle="bold" />
 
     <com.example.DateSelection.MonthListItem
-        android:id="@+id/month_dec"
         android:layout_width="130px"
         android:layout_height="90px"
         android:background="@drawable/month"
@@ -128,13 +108,11 @@
         android:text="Dec"
         android:textAlignment="center"
         android:textColor="@color/White"
-             android:textSize="21dp"
-        android:textStyle="bold"
-        circle:name="month" />
+        android:textSize="21dp"
+        android:textStyle="bold"/>
 
 
     <com.example.DateSelection.MonthListItem
-        android:id="@+id/month_jan"
         android:layout_width="130px"
         android:layout_height="90px"
         android:background="@drawable/month"
@@ -143,12 +121,10 @@
         android:text="Jan"
         android:textAlignment="center"
         android:textColor="@color/White"
-             android:textSize="21dp"
-        android:textStyle="bold"
-        circle:name="month" />
+        android:textSize="21dp"
+        android:textStyle="bold" />
 
     <com.example.DateSelection.MonthListItem
-        android:id="@+id/month_feb"
         android:layout_width="130px"
         android:layout_height="90px"
         android:background="@drawable/month"
@@ -157,12 +133,10 @@
         android:text="Feb"
         android:textAlignment="center"
         android:textColor="@color/White"
-             android:textSize="21dp"
-        android:textStyle="bold"
-        circle:name="month" />
+        android:textSize="21dp"
+        android:textStyle="bold" />
 
     <com.example.DateSelection.MonthListItem
-        android:id="@+id/month_mar"
         android:layout_width="130px"
         android:layout_height="90px"
         android:background="@drawable/month"
@@ -171,7 +145,6 @@
         android:text="Mar"
         android:textAlignment="center"
         android:textColor="@color/White"
-             android:textSize="21dp"
-        android:textStyle="bold"
-        circle:name="month" />
+        android:textSize="21dp"
+        android:textStyle="bold" />
 </merge>
