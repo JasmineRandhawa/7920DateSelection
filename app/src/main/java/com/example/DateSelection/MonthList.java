@@ -16,63 +16,37 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
-import java.security.InvalidParameterException;
-
-/**
- * @author Szugyi Creates a rotatable circle menu which can be parameterized by
- *         custom attributes. Handles touches and gestures to make the menu
- *         rotatable, and to make the menu items selectable and clickable.
- */
 public class MonthList extends ViewGroup {
-    public enum FirstChildPosition {
+    MonthList monthlist;
+    private OnClickListener onClickListener = null;
+    private OnSelectListener onSelectListener = null;
+    private OnScrollListener onScrollListener = null;
+
+    public enum ItemDirection {
         EAST(0), SOUTH(90), WEST(180), NORTH(270);
-
         private int angle;
-
-        FirstChildPosition(int angle) {
+        ItemDirection(int angle) {
             this.angle = angle;
         }
-
         public int getAngle() {
             return angle;
         }
-
     }
-    private MonthList monthsList;
-    // Event listeners
-    private OnItemClickListener onItemClickListener = null;
-    private OnItemSelectedListener onItemSelectedListener = null;
-    private OnCenterClickListener onCenterClickListener = null;
-    private OnRotationFinishedListener onRotationFinishedListener = null;
-
-    // Sizes of the ViewGroup
     private int circleWidth, circleHeight;
-    private float radius = -1;
-
-    // Child sizes
-    private int maxChildWidth = 0;
-    private int maxChildHeight = 0;
-
-    // Touch detection
-    private GestureDetector gestureDetector;
-    // Detecting inverse rotations
-    private boolean[] quadrantTouched;
-
-    // Settings of the ViewGroup
-    private int speed = 25;
-    private float angle = 90;
-    private FirstChildPosition firstChildPosition = FirstChildPosition.NORTH;
-    private boolean isRotating = true;
-
-    // Touch helpers
-    private double touchStartAngle;
-    private boolean didMove = false;
-
-    // Tapped and selected child
-    private static View selectedView = null;
-
-    // Rotation animator
-    private ObjectAnimator animator;
+    private float circleRadius = -1;
+    private int itemWidth = 0,itemHeight = 0;
+    private GestureDetector detector;
+    private boolean[] quad;
+    private int circleSpeed = 25;
+    private float circleAngle = 90;
+    private ItemDirection itemDirection = ItemDirection.NORTH;
+    private boolean isScrolling = true;
+    private double touchDegree;
+    private boolean isMoving = false;
+    private View selectedMonth = null;
+    private ObjectAnimator anim;
+    private String monthSelected ="";
+    private MonthList monthList;
 
     public MonthList(Context context) {
         this(context, null);
@@ -84,317 +58,50 @@ public class MonthList extends ViewGroup {
 
     public MonthList(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        init(attrs);
-    }
-
-    /**
-     * Initializes the ViewGroup and modifies it's default behavior by the
-     * passed attributes
-     *
-     * @param attrs the attributes used to modify default settings
-     */
-    protected void init(AttributeSet attrs) {
-        gestureDetector = new GestureDetector(getContext(),
-                new MyGestureListener());
-        quadrantTouched = new boolean[]{false, false, false, false, false};
+        detector = new GestureDetector(getContext(),
+                new GestureListener());
+        quad = new boolean[]{false, false, false, false, false};
 
         if (attrs != null) { ;
-            for (FirstChildPosition pos : FirstChildPosition.values()) {
-                if (pos.getAngle() == angle) {
-                    firstChildPosition = pos;
+            for (ItemDirection pos : ItemDirection.values()) {
+                if (pos.getAngle() == circleAngle) {
+                    itemDirection = pos;
                     break;
                 }
             }
         }
     }
 
-    public float getAngle() {
-        return angle;
-    }
 
+    //get set methods
     public void setAngle(float angle) {
-        this.angle = angle % 360;
-        setChildAngles();
+        this.circleAngle = angle % 360;
+        setItemPositions();
     }
 
-    public int getSpeed() {
-        return speed;
+    public void setCircleRadius(float radius) {
+        this.circleRadius = radius;
+        setItemPositions();
     }
 
-    public void setSpeed(int speed) {
-        if (speed <= 0) {
-            throw new InvalidParameterException("Speed must be a positive integer number");
-        }
-        this.speed = speed;
-    }
-
-    public float getRadius() {
-        return radius;
-    }
-
-    public void setRadius(float radius) {
-        if(radius < 0){
-            throw new InvalidParameterException("Radius cannot be negative");
-        }
-        this.radius = radius;
-        setChildAngles();
-    }
-
-    public boolean isRotating() {
-        return isRotating;
-    }
-
-    public void setRotating(boolean isRotating) {
-        this.isRotating = isRotating;
-    }
-
-    public FirstChildPosition getFirstChildPosition() {
-        return firstChildPosition;
-    }
-
-    public void setFirstChildPosition(FirstChildPosition firstChildPosition) {
-        this.firstChildPosition = firstChildPosition;
-        if (selectedView != null) {
-            if (isRotating) {
-                rotateViewToCenter(selectedView);
-            } else {
-                setAngle(firstChildPosition.getAngle());
-            }
+    public void setFirstItemDirection(ItemDirection itemDir) {
+        this.itemDirection = itemDir;
+        if (selectedMonth != null) {
+            if (isScrolling)
+                scrollViewToCenter(selectedMonth);
+            else
+                setAngle(itemDirection.getAngle());
         }
     }
-
 
     public View getSelectedItem() {
-        if (selectedView == null) {
-            selectedView = getChildAt(0);
-        }
-        return selectedView;
+        if (selectedMonth == null)  selectedMonth = getChildAt(0);
+        return selectedMonth;
     }
 
-    @Override
-    public void removeView(View view) {
-        super.removeView(view);
-        updateAngle();
-    }
-
-    @Override
-    public void removeViewAt(int index) {
-        super.removeViewAt(index);
-        updateAngle();
-    }
-
-    @Override
-    public void removeViews(int start, int count) {
-        super.removeViews(start, count);
-        updateAngle();
-    }
-
-    @Override
-    public void addView(View child, int index, LayoutParams params) {
-        super.addView(child, index, params);
-        updateAngle();
-    }
-
-    private void updateAngle() {
-        // Update the position of the views, so we know which is the selected
-        setChildAngles();
-        rotateViewToCenter(selectedView);
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        // Measure child views first
-        maxChildWidth = 0;
-        maxChildHeight = 0;
-
-        int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
-                MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.AT_MOST);
-        int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
-                MeasureSpec.getSize(widthMeasureSpec), MeasureSpec.AT_MOST);
-
-        final int childCount = getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            final View child = getChildAt(i);
-            if (child.getVisibility() == GONE) {
-                continue;
-            }
-
-            measureChild(child, childWidthMeasureSpec, childHeightMeasureSpec);
-
-            maxChildWidth = Math.max(maxChildWidth, child.getMeasuredWidth());
-            maxChildHeight = Math.max(maxChildHeight, child.getMeasuredHeight());
-        }
-
-        // Then decide what size we want to be
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
-        int widthSize = MeasureSpec.getSize(widthMeasureSpec);
-        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
-        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-
-        int width;
-        int height;
-
-        //Measure Width
-        if (widthMode == MeasureSpec.EXACTLY) {
-            //Must be this size
-            width = widthSize;
-        } else if (widthMode == MeasureSpec.AT_MOST) {
-            //Can't be bigger than...
-            width = Math.min(widthSize, heightSize);
-        } else {
-            //Be whatever you want
-            width = maxChildWidth * 3;
-        }
-
-        //Measure Height
-        if (heightMode == MeasureSpec.EXACTLY) {
-            //Must be this size
-            height = heightSize;
-        } else if (heightMode == MeasureSpec.AT_MOST) {
-            //Can't be bigger than...
-            height = Math.min(heightSize, widthSize);
-        } else {
-            //Be whatever you want
-            height = maxChildHeight * 3;
-        }
-
-        setMeasuredDimension(resolveSize(width, widthMeasureSpec),
-                resolveSize(height, heightMeasureSpec));
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        int layoutWidth = r - l;
-        int layoutHeight = b - t;
-
-        if(radius < 0) {
-            radius = (layoutWidth <= layoutHeight) ? layoutWidth / 3
-                    : layoutHeight / 3;
-        }
-
-        circleHeight = getHeight()*2;
-        circleWidth = getWidth();
-        setChildAngles();
-    }
-
-    public void rotateViewToCenter(View view) {
-        if (isRotating) {
-            float viewAngle = view.getTag() != null ? (Float) view.getTag() : 0;
-            float destAngle = firstChildPosition.getAngle() - viewAngle;
-
-            if (destAngle < 0) {
-                destAngle += 360;
-            }
-
-            if (destAngle > 180) {
-                destAngle = -1 * (360 - destAngle);
-            }
-
-            animateTo(angle + destAngle, 7500L / speed);
-        }
-    }
-
-    private void rotateButtons(float degrees) {
-        angle += degrees;
-        setChildAngles();
-    }
-
-    private void setChildAngles() {
-        int left, top, childWidth, childHeight, childCount = getChildCount();
-        float angleDelay = 360.0f / childCount;
-        float halfAngle = angleDelay / 2;
-        float localAngle = angle;
-
-        for (int i = 0; i < childCount; i++) {
-            final View child = getChildAt(i);
-            if (child.getVisibility() == GONE) {
-                continue;
-            }
-
-            if (localAngle > 360) {
-                localAngle -= 360;
-            } else if (localAngle < 0) {
-                localAngle += 360;
-            }
-
-            childWidth = child.getMeasuredWidth();
-            childHeight = child.getMeasuredHeight();
-            left = Math
-                    .round((float) (((circleWidth / 2.0) - childWidth / 2.0) + radius
-                            * Math.cos(Math.toRadians(localAngle))));
-            top = Math
-                    .round((float) (((circleHeight / 2.0) - childHeight / 2.0) + radius
-                            * Math.sin(Math.toRadians(localAngle))));
-
-            child.setTag(localAngle);
-
-            float distance = Math.abs(localAngle - firstChildPosition.getAngle());
-            boolean isFirstItem = distance <= halfAngle || distance >= (360 - halfAngle);
-            if (isFirstItem && selectedView != child) {
-                selectedView = child;
-                if (onItemSelectedListener != null && isRotating) {
-                    onItemSelectedListener.onItemSelected(child);
-                }
-            }
-
-            child.layout(left, top, left + childWidth, top + childHeight);
-            localAngle += angleDelay;
-        }
-    }
-
-    private void animateTo(float endDegree, long duration) {
-        if (animator != null && animator.isRunning() || Math.abs(angle - endDegree) < 1) {
-            return;
-        }
-
-        animator = ObjectAnimator.ofFloat(MonthList.this, "angle", angle, endDegree);
-        animator.setDuration(duration);
-        animator.setInterpolator(new DecelerateInterpolator());
-        animator.addListener(new Animator.AnimatorListener() {
-            private boolean wasCanceled = false;
-
-            @Override
-            public void onAnimationStart(Animator animation) {
-            }
-
-            @Override
-            public void onAnimationRepeat(Animator animation) {
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                if (wasCanceled) {
-                    return;
-                }
-
-                if (onRotationFinishedListener != null) {
-                    View view = getSelectedItem();
-                    onRotationFinishedListener.onRotationFinished(view);
-                }
-            }
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-                wasCanceled = true;
-            }
-        });
-        animator.start();
-    }
-
-    private void stopAnimation() {
-        if (animator != null && animator.isRunning()) {
-            animator.cancel();
-            animator = null;
-        }
-    }
-
-    /**
-     * @return The angle of the unit circle with the image views center
-     */
-    private double getPositionAngle(double xTouch, double yTouch) {
+    private double getAngle(double xTouch, double yTouch) {
         double x = xTouch - (circleWidth / 2d);
         double y = circleHeight - yTouch - (circleHeight / 2d);
-
         switch (getPositionQuadrant(x, y)) {
             case 1:
                 return Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI;
@@ -404,26 +111,109 @@ public class MonthList extends ViewGroup {
             case 4:
                 return 360 + Math.asin(y / Math.hypot(x, y)) * 180 / Math.PI;
             default:
-                // ignore, does not happen
                 return 0;
         }
     }
 
-    /**
-     * @return The quadrant of the position
-     */
     private static int getPositionQuadrant(double x, double y) {
-        if (x >= 0) {
-            return y >= 0 ? 1 : 4;
-        } else {
-            return y >= 0 ? 2 : 3;
+        if (x >= 0)  return y >= 0 ? 1 : 4;
+        else  return y >= 0 ? 2 : 3;
+    }
+
+    public void scrollViewToCenter(View view) {
+        if (isScrolling) {
+            float initialAngle = view.getTag() != null ? (Float) view.getTag() : 0;
+            float finalAngle = itemDirection.getAngle() - initialAngle;
+            if (finalAngle < 0) finalAngle += 360;
+            if (finalAngle > 180)  finalAngle = -1 * (360 - finalAngle);
+            startAnimation(circleAngle + finalAngle, 7500L / circleSpeed);
         }
     }
 
+    private void scrollItems(float degrees) {
+        circleAngle += degrees;
+        setItemPositions();
+    }
+
+    private void setItemPositions() {
+        int left, top, childWidth, childHeight, childCount = getChildCount();
+        float angleDelay = 360.0f / childCount;
+        float halfAngle = angleDelay / 2;
+        float localAngle = circleAngle;
+        for (int i = 0; i < childCount; i++) {
+            final View child = getChildAt(i);
+            if (child.getVisibility() == GONE) continue;
+            if (localAngle > 360)  localAngle -= 360;
+            else if (localAngle < 0) localAngle += 360;
+
+            childWidth = child.getMeasuredWidth();
+            childHeight = child.getMeasuredHeight();
+            left = Math.round((float) (((circleWidth / 2.0) - childWidth / 2.0) + circleRadius
+                    * Math.cos(Math.toRadians(localAngle))));
+            top = Math.round((float) (((circleHeight / 2.0) - childHeight / 2.0) + circleRadius
+                    * Math.sin(Math.toRadians(localAngle))));
+            child.setTag(localAngle);
+            float distance = Math.abs(localAngle - itemDirection.getAngle());
+            boolean isFirstItem = distance <= halfAngle || distance >= (360 - halfAngle);
+            if (isFirstItem && selectedMonth != child) {
+                selectedMonth = child;
+                if (onSelectListener != null && isScrolling)
+                    onSelectListener.onMonthSelect(child);
+            }
+            child.layout(left, top, left + childWidth, top + childHeight);
+            localAngle += angleDelay;
+        }
+    }
+
+    private void startAnimation(float toAngle, long time) {
+        if (anim != null && anim.isRunning() || Math.abs(circleAngle - toAngle) < 1) return;
+        anim = ObjectAnimator.ofFloat(MonthList.this, "angle", circleAngle, toAngle);
+        anim.setDuration(time);
+        anim.setInterpolator(new DecelerateInterpolator());
+        anim.addListener(new Animator.AnimatorListener() {
+            private boolean wasCanceled = false;
+            @Override
+            public void onAnimationStart(Animator animation) {}
+            @Override
+            public void onAnimationRepeat(Animator animation) {}
+            @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (wasCanceled) return;
+                View view = getSelectedItem();
+                if(onScrollListener != null )
+                onScrollListener.onScrollEnd(view);
+            }
+            @Override
+            public void onAnimationCancel(Animator animation) { wasCanceled = true;}
+        });
+        anim.start();
+    }
+
+    private void haltAnimation() {
+        if (anim != null && anim.isRunning()) {
+            anim.cancel();
+            anim = null;
+        }
+    }
+
+    private float getCenterDegree(float angle) {
+        if (getChildCount() == 0) return angle;
+        float localAngle = angle % 360;
+        if (localAngle < 0)
+            localAngle = 360 + localAngle;
+        for (float i = itemDirection.getAngle(); i < itemDirection.getAngle() + 360; i += 360 / getChildCount()) {
+            if (Math.abs(localAngle - i % 360) < 360 / getChildCount())
+                angle -= localAngle - i % 360;
+            break;
+        }
+        return angle;
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void UpdateMonthListItemBackgroundWhileRotating() {
-        for (int i = 0; i < monthsList.getChildCount(); i++) {
-            TextView monthListItem = (TextView) monthsList.getChildAt(i);
+    public void updateMonthListItemBackgroundWhileRotating() {
+        for (int i = 0; i < monthList.getChildCount(); i++) {
+            TextView monthListItem = (TextView) monthList.getChildAt(i);
             if (monthListItem != null) {
                 monthListItem.setBackgroundResource(R.drawable.month);
                 monthListItem.setTextColor(getResources().getColor(R.color.White));
@@ -436,45 +226,84 @@ public class MonthList extends ViewGroup {
         }
     }
 
+    //events
+    @Override
+    protected void onMeasure(int w, int h) {
+        itemWidth = 0;
+        itemHeight = 0;
+        int childWidthMeasureSpec = MeasureSpec.makeMeasureSpec(
+                MeasureSpec.getSize(w), MeasureSpec.AT_MOST);
+        int childHeightMeasureSpec = MeasureSpec.makeMeasureSpec(
+                MeasureSpec.getSize(w), MeasureSpec.AT_MOST);
+
+        for (int i = 0; i < getChildCount(); i++) {
+            final View child = getChildAt(i);
+            if (child.getVisibility() == GONE) {
+                continue;
+            }
+            measureChild(child, childWidthMeasureSpec, childHeightMeasureSpec);
+            itemWidth = Math.max(itemHeight, child.getMeasuredWidth());
+            itemWidth = Math.max(itemHeight, child.getMeasuredHeight());
+        }
+        int width;
+        int height;
+        if (MeasureSpec.getMode(w) == MeasureSpec.EXACTLY)
+            width = MeasureSpec.getSize(w);
+        else if (MeasureSpec.getMode(w) == MeasureSpec.AT_MOST)
+            width = Math.min(MeasureSpec.getSize(w), MeasureSpec.getSize(h));
+        else
+            width = itemWidth * 3;
+
+        if ( MeasureSpec.getMode(h) == MeasureSpec.EXACTLY)
+            height = MeasureSpec.getSize(h);
+        else if ( MeasureSpec.getMode(h) == MeasureSpec.AT_MOST)
+            height = Math.min(MeasureSpec.getSize(h), MeasureSpec.getSize(w));
+        else
+            height = itemHeight * 3;
+        setMeasuredDimension(resolveSize(width, w), resolveSize(height, h));
+    }
+
+    @Override
+    protected void onLayout(boolean isLayoutChanged, int left, int top, int right, int bottom) {
+        if(circleRadius < 0)
+            circleRadius = ((right - left) <= (bottom - top)) ? (right - left) / 3
+                    : (bottom - top) / 3;
+        circleHeight = getHeight()*2;
+        circleWidth = getWidth();
+        setItemPositions();
+    }
+
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (isEnabled()) {
-            gestureDetector.onTouchEvent(event);
-            if (isRotating) {
+            detector.onTouchEvent(event);
+            if (isScrolling) {
                 switch (event.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        // reset the touched quadrants
-                        for (int i = 0; i < quadrantTouched.length; i++) {
-                            quadrantTouched[i] = false;
-                        }
-
-                        stopAnimation();
-                        touchStartAngle = getPositionAngle(event.getX(),
-                                event.getY());
-                        didMove = false;
-                        UpdateMonthListItemBackgroundWhileRotating();
+                        for (int i = 0; i < quad.length; i++)
+                            quad[i] = false;
+                        haltAnimation();
+                        touchDegree = getAngle(event.getX(), event.getY());
+                        isMoving = false;
+                        updateMonthListItemBackgroundWhileRotating();
                         break;
                     case MotionEvent.ACTION_MOVE:
-                        double currentAngle = getPositionAngle(event.getX(),
-                                event.getY());
-                        rotateButtons((float) (touchStartAngle - currentAngle));
-                        touchStartAngle = currentAngle;
-                        didMove = true;
-                        UpdateMonthListItemBackgroundWhileRotating();
+                        double angle = getAngle(event.getX(),event.getY());
+                        scrollItems((float) (touchDegree - angle));
+                        touchDegree = angle;
+                        isMoving = true;
+                        updateMonthListItemBackgroundWhileRotating();
                         break;
                     case MotionEvent.ACTION_UP:
-                        if (didMove) {
-                            rotateViewToCenter(selectedView);
-                        }
+                        if (isMoving) scrollViewToCenter(selectedMonth);
                         break;
                     default:
                         break;
                 }
             }
-
-            // set the touched quadrant to true
-            quadrantTouched[getPositionQuadrant(event.getX()
+            quad[getPositionQuadrant(event.getX()
                     - (circleWidth / 2), circleHeight - event.getY()
                     - (circleHeight / 2))] = true;
             return true;
@@ -482,157 +311,96 @@ public class MonthList extends ViewGroup {
         return false;
     }
 
-    private class MyGestureListener extends SimpleOnGestureListener {
-
+    //Listeners
+    private class GestureListener extends SimpleOnGestureListener {
         @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-            if (!isRotating) {
+        public boolean onFling(MotionEvent me1, MotionEvent me2, float speedX, float speedY) {
+            if (!isScrolling) {
                 return false;
             }
-            // get the quadrant of the start and the end of the fling
-            int q1 = getPositionQuadrant(e1.getX() - (circleWidth / 2),
-                    circleHeight - e1.getY() - (circleHeight / 2));
-            int q2 = getPositionQuadrant(e2.getX() - (circleWidth / 2),
-                    circleHeight - e2.getY() - (circleHeight / 2));
+            int quadFirst = getPositionQuadrant(me1.getX() - (circleWidth / 2),
+                    circleHeight - me1.getY() - (circleHeight / 2));
+            int quadSec = getPositionQuadrant(me2.getX() - (circleWidth / 2),
+                    circleHeight - me2.getY() - (circleHeight / 2));
 
-            if ((q1 == 2 && q2 == 2 && Math.abs(velocityX) < Math
-                    .abs(velocityY))
-                    || (q1 == 3 && q2 == 3)
-                    || (q1 == 1 && q2 == 3)
-                    || (q1 == 4 && q2 == 4 && Math.abs(velocityX) > Math
-                    .abs(velocityY))
-                    || ((q1 == 2 && q2 == 3) || (q1 == 3 && q2 == 2))
-                    || ((q1 == 3 && q2 == 4) || (q1 == 4 && q2 == 3))
-                    || (q1 == 2 && q2 == 4 && quadrantTouched[3])
-                    || (q1 == 4 && q2 == 2 && quadrantTouched[3])) {
-                // the inverted rotations
-                animateTo(
-                        getCenteredAngle(angle - (velocityX + velocityY) / 25),
-                        25000L / speed);
+            if ((quadFirst == 2 && quadSec== 2 && Math.abs(speedX) < Math
+                    .abs(speedY))
+                    || (quadFirst == 3 && quadSec == 3)
+                    || (quadFirst == 1 && quadSec == 3)
+                    || (quadFirst == 4 && quadSec== 4 && Math.abs(speedX) > Math
+                    .abs(speedY))
+                    || ((quadFirst == 2 && quadSec == 3) || (quadSec == 3 && quadSec == 2))
+                    || ((quadFirst == 3 && quadSec == 4) || (quadSec == 4 && quadSec == 3))
+                    || (quadFirst == 2 && quadSec == 4 && quad[3])
+                    || (quadFirst == 4 && quadSec== 2 && quad[3])) {
+                startAnimation(
+                        getCenterDegree(circleAngle - (speedX + speedY) / 25),
+                        25000L / circleSpeed);
             } else {
-                // the normal rotation
-                animateTo(
-                        getCenteredAngle(angle + (velocityX + velocityY) / 25),
-                        25000L / speed);
+                startAnimation(
+                        getCenterDegree(circleAngle + (speedX + speedY) / 25),
+                        25000L / circleSpeed);
             }
-
             return true;
         }
 
-        private float getCenteredAngle(float angle) {
-            if (getChildCount() == 0) {
-                // Prevent divide by zero
-                return angle;
-            }
-
-            float angleDelay = 360 / getChildCount();
-            float localAngle = angle % 360;
-
-            if (localAngle < 0) {
-                localAngle = 360 + localAngle;
-            }
-
-            for (float i = firstChildPosition.getAngle(); i < firstChildPosition.getAngle() + 360; i += angleDelay) {
-                float locI = i % 360;
-                float diff = localAngle - locI;
-                if (Math.abs(diff) < angleDelay) {
-                    angle -= diff;
+        @Override
+        public boolean onSingleTapUp(MotionEvent event) {
+            View view = null;
+            int pos = -1 ;
+            for (int i = 0; i < getChildCount(); i++) {
+                if (getChildAt(i).getLeft() < event.getX() && getChildAt(i).getRight() > event.getX()
+                        & getChildAt(i).getTop() < event.getY() && getChildAt(i).getBottom() > event.getY()) {
+                    pos = i;
                     break;
                 }
             }
-
-            return angle;
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent e) {
-            View tappedView = null;
-            int tappedViewsPosition = pointToChildPosition(e.getX(), e.getY());
-            if (tappedViewsPosition >= 0) {
-                tappedView = getChildAt(tappedViewsPosition);
-                tappedView.setPressed(true);
-            } else {
-                // Determine if it was a center click
-                float centerX = circleWidth / 2F;
-                float centerY = circleHeight / 2F;
-
-                if (onCenterClickListener != null
-                        && e.getX() < centerX + radius - (maxChildWidth / 2)
-                        && e.getX() > centerX - radius + (maxChildWidth / 2)
-                        && e.getY() < centerY + radius - (maxChildHeight / 2)
-                        && e.getY() > centerY - radius + (maxChildHeight / 2)) {
-                    onCenterClickListener.onCenterClick();
-                    return true;
-                }
+            if (pos >= 0) {
+                view = getChildAt(pos);
+                view.setPressed(true);
             }
-
-            if (tappedView != null) {
-                if (selectedView == tappedView) {
-                    if (onItemClickListener != null) {
-                        onItemClickListener.onItemClick(tappedView);
-                    }
-                } else {
-                    rotateViewToCenter(tappedView);
-                    if (!isRotating) {
-                        if (onItemSelectedListener != null) {
-                            onItemSelectedListener.onItemSelected(tappedView);
-                        }
-
-                        if (onItemClickListener != null) {
-                            onItemClickListener.onItemClick(tappedView);
+            if (view != null) {
+                if (onScrollListener != null && selectedMonth == view)
+                     onClickListener.onMonthClick(view);
+                else {
+                    scrollViewToCenter(view);
+                    if (!isScrolling) {
+                        if (!isScrolling && onSelectListener != null) {
+                            onSelectListener.onMonthSelect(view);
+                            onClickListener.onMonthClick(view);
                         }
                     }
                 }
                 return true;
             }
-            return super.onSingleTapUp(e);
-        }
-
-        private int pointToChildPosition(float x, float y) {
-            for (int i = 0; i < getChildCount(); i++) {
-                View view = getChildAt(i);
-                if (view.getLeft() < x && view.getRight() > x
-                        & view.getTop() < y && view.getBottom() > y) {
-                    return i;
-                }
-            }
-            return -1;
+            return super.onSingleTapUp(event);
         }
     }
 
-    public interface OnItemClickListener {
-        void onItemClick(View view);
+    public interface OnClickListener {
+        void onMonthClick(View view);
     }
 
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        this.onItemClickListener = onItemClickListener;
+    public void setOnClickListener(OnClickListener onClickListener) {
+        this.onClickListener = onClickListener;
     }
 
-    public interface OnItemSelectedListener {
-        void onItemSelected(View view);
+    public interface OnSelectListener {
+        void onMonthSelect(View view);
     }
 
-    public void setOnItemSelectedListener(
-            OnItemSelectedListener onItemSelectedListener, MonthList monthListView) {
-        this.onItemSelectedListener = onItemSelectedListener;
-        this.monthsList = monthListView;
+    public void setOnSelectListener(OnSelectListener onSelectListener, MonthList monthListView) {
+        this.onSelectListener = onSelectListener;
+        this.monthList = monthListView;
     }
 
-    public interface OnCenterClickListener {
-        void onCenterClick();
+
+    public interface OnScrollListener {
+        void onScrollEnd(View view);
     }
 
-    public void setOnCenterClickListener(
-            OnCenterClickListener onCenterClickListener) {
-        this.onCenterClickListener = onCenterClickListener;
-    }
-
-    public interface OnRotationFinishedListener {
-        void onRotationFinished(View view);
-    }
-
-    public void setOnRotationFinishedListener(
-            OnRotationFinishedListener onRotationFinishedListener) {
-        this.onRotationFinishedListener = onRotationFinishedListener;
+    public void setOnScrollListener(
+            OnScrollListener onScrollListener) {
+        this.onScrollListener = onScrollListener;
     }
 }

@@ -22,8 +22,8 @@ import java.util.Calendar;
 
 ;
 
-public class CalendarActivity extends AppCompatActivity implements MonthList.OnItemSelectedListener,
-        MonthList.OnItemClickListener, MonthList.OnRotationFinishedListener {
+public class CalendarActivity extends AppCompatActivity implements MonthList.OnSelectListener,
+        MonthList.OnClickListener, MonthList.OnScrollListener {
 
     private MonthList monthsList;
     private WheelList daysList, yearsList;private int shortAnimationDuration=100;
@@ -85,7 +85,7 @@ public class CalendarActivity extends AppCompatActivity implements MonthList.OnI
         daysList = findViewById(R.id.daysList);
         monthsList = findViewById(R.id.monthsList);
         yearsList = findViewById(R.id.yearsList);
-        monthsList.setRadius(135);
+        monthsList.setCircleRadius(135);
         monthsList.setY(-120);
         daysList.setX(-75);
         yearsList.setX(40);
@@ -94,7 +94,7 @@ public class CalendarActivity extends AppCompatActivity implements MonthList.OnI
         yearListRadius = 275;
         dayListRadius = 300;
         SetUpListAdaptors();
-        monthsList.setFirstChildPosition(MonthList.FirstChildPosition.values()[3]);
+        monthsList.setFirstItemDirection(MonthList.ItemDirection.values()[3]);
         refreshCircular(daysList,"day","");
         refreshCircular(yearsList,"year","");
     }
@@ -182,12 +182,12 @@ public class CalendarActivity extends AppCompatActivity implements MonthList.OnI
     }
 
     @Override
-    public void onItemSelected(View view) {
+    public void onMonthSelect(View view) {
         UpdateDate(view);
     }
 
     @Override
-    public void onItemClick(View view) {
+    public void onMonthClick(View view) {
         UpdateDate(view);
     }
 
@@ -198,7 +198,7 @@ public class CalendarActivity extends AppCompatActivity implements MonthList.OnI
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
-    public void onRotationFinished(View selectedMonthListItem) {
+    public void onScrollEnd(View selectedMonthListItem) {
 
         Animation animation = new RotateAnimation(0, 360,
                 selectedMonthListItem.getWidth() / 2, selectedMonthListItem.getHeight() / 2);
@@ -270,9 +270,9 @@ public class CalendarActivity extends AppCompatActivity implements MonthList.OnI
         daysList.setWheelListAlignment(WheelListListener.ItemAllignment.Left);
 
         // set up month list
-        monthsList.setOnItemSelectedListener(this,monthsList);
-        monthsList.setOnItemClickListener(this);
-        monthsList.setOnRotationFinishedListener(this);
+        monthsList.setOnSelectListener(this,monthsList);
+        monthsList.setOnClickListener(this);
+        monthsList.setOnScrollListener(this);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
         TextView selectedMonth =null;
@@ -285,9 +285,9 @@ public class CalendarActivity extends AppCompatActivity implements MonthList.OnI
             }
         if(selectedMonth!=null)
         {
-            onItemClick(selectedMonth);
-            monthsList.rotateViewToCenter(selectedMonth);
-            onRotationFinished(selectedMonth);
+            onMonthClick(selectedMonth);
+            monthsList.scrollViewToCenter(selectedMonth);
+            onScrollEnd(selectedMonth);
         }
 
         // set up years list
