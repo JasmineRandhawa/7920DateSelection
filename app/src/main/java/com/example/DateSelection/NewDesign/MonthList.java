@@ -1,4 +1,4 @@
-package com.example.DateSelection;
+package com.example.DateSelection.NewDesign;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
@@ -15,8 +15,15 @@ import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
 
+import com.example.DateSelection.R;
+
 public class MonthList extends ViewGroup {
 
+    private final GestureDetector detector;
+    private final boolean[] quad;
+    private final int circleSpeed = 25;
+    private final boolean isScrolling = true;
+    private final String monthSelected = "";
     //class fields
     private OnClickListener onClickListener = null;
     private OnSelectListener onSelectListener = null;
@@ -24,18 +31,14 @@ public class MonthList extends ViewGroup {
     private int circleWidth, circleHeight;
     private float circleRadius = -1;
     private int itemWidth = 0, itemHeight = 0;
-    private final GestureDetector detector;
-    private final boolean[] quad;
-    private final int circleSpeed = 25;
     private float circleAngle = 90;
     private ItemDirection itemDirection = ItemDirection.NORTH;
-    private final boolean isScrolling = true;
     private double touchDegree;
     private boolean isMoving = false;
     private View selectedMonth = null;
     private ObjectAnimator anim;
-    private final String monthSelected = "";
     private MonthList monthList;
+
     //constructor
     public MonthList(Context context) {
         this(context, null);

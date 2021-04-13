@@ -1,4 +1,4 @@
-package com.example.DateSelection;
+package com.example.DateSelection.NewDesign;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -14,6 +14,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.example.DateSelection.R;
 
 
 /* Wheel List View  for days and years lists*/
@@ -214,7 +216,7 @@ public class WheelList extends ListView implements AbsListView.OnScrollListener 
     }
 
     //Listener
-    interface WheelListListener {
+    public interface WheelListListener {
         void onScrollEnd(WheelList wheelList,
                          int firstItem,
                          int itemDisplayed,

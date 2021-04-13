@@ -4,12 +4,20 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/cal_button_icon"
+        android:icon="@drawable/project_icon"
         android:label="Date Selection"
-        android:roundIcon="@drawable/cal_button_icon"
+        android:roundIcon="@drawable/project_icon"
         android:supportsRtl="true"
         android:theme="@style/Theme.NewDesign">
-        <activity android:name="com.example.DateSelection.CalendarActivity">
+        <activity android:name="com.example.DateSelection.Main.InstructionsActivity"/>
+        <activity android:name="com.example.DateSelection.Main.ExportDataActivity"/>
+        <activity android:name="com.example.DateSelection.Trials.Trial1_Old"/>
+        <activity android:name="com.example.DateSelection.Trials.Trial2_Old"/>
+        <activity android:name="com.example.DateSelection.Trials.Trial3_Old"/>
+        <activity android:name="com.example.DateSelection.Trials.Trial1_New"/>
+        <activity android:name="com.example.DateSelection.Trials.Trial2_New"/>
+        <activity android:name="com.example.DateSelection.Trials.Trial3_New"/>
+        <activity android:name="com.example.DateSelection.Main.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
