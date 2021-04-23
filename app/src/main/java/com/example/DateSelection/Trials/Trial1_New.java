@@ -10,6 +10,7 @@ import android.os.CountDownTimer;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnticipateOvershootInterpolator;
@@ -191,21 +192,22 @@ public class Trial1_New extends AppCompatActivity implements MonthList.OnSelectL
         });
 
        daysList.setOnTouchListener((v, event) -> {
+           if(event.getAction() == MotionEvent.ACTION_UP)
            noOfTaps++;
            return false;
        });
 
         monthsList.setOnTouchListener((v, event) -> {
+            if(event.getAction() == MotionEvent.ACTION_UP)
             noOfTaps++;
             return false;
         });
 
         yearsList.setOnTouchListener((v, event) -> {
+            if(event.getAction() == MotionEvent.ACTION_UP)
             noOfTaps++;
             return false;
         });
-
-
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)

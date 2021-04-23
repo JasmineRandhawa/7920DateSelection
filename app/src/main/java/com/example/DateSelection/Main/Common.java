@@ -9,7 +9,7 @@ import java.util.Locale;
 public class Common {
 
     // control number of successful attempts needed for a trial
-    private static final int TotalSuccessfulAttemptsNeededPerTrial = 2;
+    private static final int TotalSuccessfulAttemptsNeededPerTrial = 10;
 
     public static int getTotalSuccessfulAttemptsNeededPerTrial() {
         return TotalSuccessfulAttemptsNeededPerTrial;
@@ -86,10 +86,7 @@ public class Common {
 
     // called to randomly generate date from previous three decades
     public static String GenerateRandomSmallDate(String dateStr) {
-        //String[] dates = new String[]{"12-Jun-1981" ,"25-Jul-1984" , "02-Oct-1983","19-Aug-1987",
-        //"21-Aug-1984" ,"28-Jul-1982" , "29-May-1983","03-Sep-1982",
-        //"15-Jul-1984" ,"11-May-1981"};
-        String[] dates = new String[]{"12-Apr-2021", "12-Apr-2021", "02-Oct-1983", "19-Aug-1987",
+        String[] dates = new String[]{"12-Jun-1981", "25-Jul-1984", "02-Oct-1983", "19-Aug-1987",
                 "21-Aug-1984", "28-Jul-1982", "29-May-1983", "03-Sep-1982",
                 "15-Jul-1984", "11-May-1981"};
         if (dateStr.equals("")) {
@@ -108,10 +105,7 @@ public class Common {
 
     // called to randomly generate date from previous five decades
     public static String GenerateRandomMediumDate(String dateStr) {
-       /* String[] dates = new String[]{"11-Jul-1966", "27-Jun-1965", "05-Aug-1967", "23-Oct-1963",
-                "19-Jul-1962", "28-Aug-1965", "29-Sep-1962", "03-May-1963",
-                "15-Sep-1961", "11-Jul-1964"};*/
-        String[] dates = new String[]{"12-Apr-2021", "12-Apr-2021", "02-Oct-1983", "19-Aug-1987",
+        String[] dates = new String[]{"11-Jul-1966", "27-Jun-1965", "02-Oct-1983", "19-Aug-1987",
                 "21-Aug-1984", "28-Jul-1982", "29-May-1983", "03-Sep-1982",
                 "15-Jul-1984", "11-May-1981"};
         if (dateStr.equals("")) {
@@ -130,10 +124,7 @@ public class Common {
 
     // called to randomly generate date from previous seven decades
     public static String GenerateRandomLargeDate(String dateStr) {
-       /* String[] dates = new String[]{"29-May-1942", "15-Jul-1944", "28-Sept-1942", "03-Jul-1947",
-                "21-Jun-1945", "19-Nov-1941", "11-Aug-1943", "14-Sep-1944",
-                "07-May-1948", "26-Apr-1946"};*/
-        String[] dates = new String[]{"12-Apr-2021", "12-Apr-2021", "02-Oct-1983", "19-Aug-1987",
+        String[] dates = new String[]{"29-May-19421", "15-Jul-1944", "02-Oct-1983", "19-Aug-1987",
                 "21-Aug-1984", "28-Jul-1982", "29-May-1983", "03-Sep-1982",
                 "15-Jul-1984", "11-May-1981"};
         if (dateStr.equals("")) {
