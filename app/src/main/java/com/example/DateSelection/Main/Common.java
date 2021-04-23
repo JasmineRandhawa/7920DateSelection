@@ -15,11 +15,11 @@ public class Common {
         return TotalSuccessfulAttemptsNeededPerTrial;
     }
 
-    // called to randomly generate date from previous three decades
+    // called to randomly generate date from previous  decades
     public static String GenerateRandomSmallDate(String dateStr) {
-        String[] dates = new String[]{"12-Jun-1981", "25-Jul-1984", "02-Oct-1983", "19-Aug-1987",
-                "21-Aug-1984", "28-Jul-1982", "29-May-1983", "03-Sep-1982",
-                "15-Jul-1984", "11-May-1981"};
+        String[] dates = new String[]{"12-Jun-2001", "25-Jul-2004", "02-Oct-2003", "19-Aug-2007",
+                "21-Aug-2004", "28-Jul-2002", "29-May-2003", "03-Sep-2002",
+                "15-Jul-2004", "11-May-2001"};
         if (dateStr.equals("")) {
             return dates[0];
         } else {
@@ -34,11 +34,11 @@ public class Common {
         }
     }
 
-    // called to randomly generate date from previous five decades
+    // called to randomly generate date from previous two decades
     public static String GenerateRandomMediumDate(String dateStr) {
-        String[] dates = new String[]{"11-Jul-1966", "27-Jun-1965", "02-Oct-1983", "19-Aug-1987",
-                "21-Aug-1984", "28-Jul-1982", "29-May-1983", "03-Sep-1982",
-                "15-Jul-1984", "11-May-1981"};
+        String[] dates = new String[]{"11-Jul-1996", "27-Jun-1995", "02-Oct-1993", "19-Aug-1997",
+                "21-Aug-1994", "28-Jul-1992", "29-May-1993", "03-Sep-1992",
+                "15-Jul-1994", "11-May-1991"};
         if (dateStr.equals("")) {
             return dates[0];
         } else {
@@ -53,9 +53,9 @@ public class Common {
         }
     }
 
-    // called to randomly generate date from previous seven decades
+    // called to randomly generate date from previous three decades
     public static String GenerateRandomLargeDate(String dateStr) {
-        String[] dates = new String[]{"29-May-19421", "15-Jul-1944", "02-Oct-1983", "19-Aug-1987",
+        String[] dates = new String[]{"29-May-1982", "15-Jul-1984", "02-Oct-1983", "19-Aug-1987",
                 "21-Aug-1984", "28-Jul-1982", "29-May-1983", "03-Sep-1982",
                 "15-Jul-1984", "11-May-1981"};
         if (dateStr.equals("")) {
