@@ -15,11 +15,11 @@ public class Common {
         return TotalSuccessfulAttemptsNeededPerTrial;
     }
 
-    // called to randomly generate date from previous  decades
+    // called to randomly generate date from previous  two year
     public static String GenerateRandomSmallDate(String dateStr) {
-        String[] dates = new String[]{"12-Jun-2001", "25-Jul-2004", "02-Oct-2003", "19-Aug-2007",
-                "21-Aug-2004", "28-Jul-2002", "29-May-2003", "03-Sep-2002",
-                "15-Jul-2004", "11-May-2001"};
+        String[] dates = new String[]{"12-Jun-2020", "25-Jul-2019", "02-Oct-2019", "19-Aug-2020",
+                "21-Aug-2019", "28-Jul-2019", "29-May-2020", "03-Sep-2019",
+                "15-Jul-2019", "11-May-2020"};
         if (dateStr.equals("")) {
             return dates[0];
         } else {
@@ -34,11 +34,11 @@ public class Common {
         }
     }
 
-    // called to randomly generate date from previous two decades
+    // called to randomly generate date from previous three years
     public static String GenerateRandomMediumDate(String dateStr) {
-        String[] dates = new String[]{"11-Jul-1996", "27-Jun-1995", "02-Oct-1993", "19-Aug-1997",
-                "21-Aug-1994", "28-Jul-1992", "29-May-1993", "03-Sep-1992",
-                "15-Jul-1994", "11-May-1991"};
+        String[] dates = new String[]{"11-Jul-2019", "27-Jun-2018", "02-Oct-2018", "19-Aug-2019",
+                "21-Aug-2018", "28-Jul-2019", "29-May-2018", "03-Sep-2018",
+                "15-Jul-2018", "11-May-2019"};
         if (dateStr.equals("")) {
             return dates[0];
         } else {
@@ -53,11 +53,11 @@ public class Common {
         }
     }
 
-    // called to randomly generate date from previous three decades
+    // called to randomly generate date from previous four year
     public static String GenerateRandomLargeDate(String dateStr) {
-        String[] dates = new String[]{"29-May-1982", "15-Jul-1984", "02-Oct-1983", "19-Aug-1987",
-                "21-Aug-1984", "28-Jul-1982", "29-May-1983", "03-Sep-1982",
-                "15-Jul-1984", "11-May-1981"};
+        String[] dates = new String[]{"29-May-2018", "15-Jul-2017", "02-Oct-2018", "19-Aug-2017",
+                "21-Aug-2018", "28-Jul-2017", "29-May-2018", "03-Sep-2017",
+                "15-Jul-2017", "11-May-2017"};
         if (dateStr.equals("")) {
             return dates[0];
         } else {
