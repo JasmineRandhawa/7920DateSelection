@@ -245,7 +245,10 @@ public class Trial1_New extends AppCompatActivity implements MonthList.OnSelectL
         TextView selectedMonth = null;
         for (int i = 0; i < monthsList.getChildCount(); i++) {
             TextView monthListItem = (TextView) monthsList.getChildAt(i);
-            if (monthListItem != null && monthListItem.getText().equals("Apr")) {
+            Calendar cal = Calendar.getInstance();
+            int month = cal.get(Calendar.MONTH);
+            String monthName = Common.GetMonthName(month+1);
+            if (monthListItem != null && monthListItem.getText().equals(monthName)) {
                 selectedMonth = monthListItem;
                 break;
             }

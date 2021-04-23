@@ -15,75 +15,6 @@ public class Common {
         return TotalSuccessfulAttemptsNeededPerTrial;
     }
 
-    //return all days
-    public static String[] GetDaysList() {
-        String[] days = new String[31];
-        for (int i = 0; i <= days.length - 1; i++) {
-            days[i] = (i < 9 ? "0" : "") + (i + 1) + "";
-        }
-        return days;
-    }
-
-    //get day index from day value
-    public static int GetDayIndex(String dayStr) {
-        String[] days = GetDaysList();
-        for (int i = 0; i <= days.length - 1; i++) {
-            if (days[i].equals(dayStr))
-                return i;
-        }
-        return -1;
-    }
-
-    //get day string from day index
-    public static String GetDayStr(int dayIndex) {
-        String[] days = GetDaysList();
-        return days[dayIndex];
-    }
-
-    //return all months
-    public static String[] GetMonthList() {
-        return new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-    }
-
-
-    //return all years
-    public static String[] GetYearsList() {
-        String[] years = new String[146];
-        for (int i = 0; i <= years.length - 1; i++) {
-            years[i] = 1900 + i + "";
-        }
-        return years;
-    }
-
-
-    //get year index from year value
-    public static int GetYearIndex(String yearStr) {
-        String[] years = GetYearsList();
-        for (int i = 0; i <= years.length - 1; i++) {
-            if (years[i].equals(yearStr))
-                return i;
-        }
-        return -1;
-    }
-
-    //get year string from year index
-    public static String GetYearStr(int yearIndex) {
-        String[] years = GetYearsList();
-        return years[yearIndex];
-    }
-
-    //validate date
-    public static String ValidateDate(int day, String month, int year) {
-        if (day > 28 && month.equals("Feb") && year % 4 != 0) {
-            return "day cannot be > 28 for a non-leap year";
-        } else if (day > 29 && month.equals("Feb") && year % 4 == 0) {
-            return "day cannot be > 29 for a leap year";
-        } else if (day == 31 && (month.equals("Apr") || month.equals("Jun") || month.equals("Sep") || month.equals("Nov"))) {
-            return "day cannot be 31 for " + month;
-        } else
-            return "Valid";
-    }
-
     // called to randomly generate date from previous three decades
     public static String GenerateRandomSmallDate(String dateStr) {
         String[] dates = new String[]{"12-Jun-1981", "25-Jul-1984", "02-Oct-1983", "19-Aug-1987",
@@ -139,6 +70,41 @@ public class Common {
             }
             return dates[index + 1];
         }
+    }
+
+    //get month string from month number
+    public static String GetMonthName(int month)
+    {
+        String monthString;
+        switch (month) {
+            case 1:  monthString = "Jan";
+                break;
+            case 2:  monthString = "Feb";
+                break;
+            case 3:  monthString = "Mar";
+                break;
+            case 4:  monthString = "Apr";
+                break;
+            case 5:  monthString = "May";
+                break;
+            case 6:  monthString = "Jun";
+                break;
+            case 7:  monthString = "Jul";
+                break;
+            case 8:  monthString = "Aug";
+                break;
+            case 9:  monthString = "Sep";
+                break;
+            case 10: monthString = "Oct";
+                break;
+            case 11: monthString = "Nov";
+                break;
+            case 12: monthString = "Dec";
+                break;
+            default: monthString = "Invalid month";
+                break;
+        }
+        return monthString;
     }
 
     public static Date GetDateStr(String dateString) {
@@ -237,50 +203,6 @@ public class Common {
                 break;
         }
         return monthIndex;
-    }
-
-    public static String GetMonthName(int monthIndex) {
-        String monthName = "";
-        switch (monthIndex) {
-            case 1:
-                monthName = "Jan";
-                break;
-            case 2:
-                monthName = "Feb";
-                break;
-            case 3:
-                monthName = "Mar";
-                break;
-            case 4:
-                monthName = "Apr";
-                break;
-            case 5:
-                monthName = "May";
-                break;
-            case 6:
-                monthName = "Jun";
-                break;
-            case 7:
-                monthName = "Jul";
-                break;
-            case 8:
-                monthName = "Aug";
-                break;
-            case 9:
-                monthName = "Sep";
-                break;
-            case 10:
-                monthName = "Oct";
-                break;
-
-            case 11:
-                monthName = "Nov";
-                break;
-            case 12:
-                monthName = "Dec";
-                break;
-        }
-        return monthName;
     }
 
     public static String GetDayOFWeek(String dateStr) {
