@@ -1,7 +1,6 @@
 package com.example.DateSelection.Trials;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -14,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,11 +43,11 @@ public class Trial2_Old extends AppCompatActivity {
     final static int partNumber = 1; // part number
     final static boolean isFirstTrialActivity = false; //is its first trial activity to launch
     final static boolean isLastTrialActivity = false; // is it last trial activity
-    final static String trialType = "MediumOld"; // trial type
+    final static String designType = "Old"; // trial type
     final static String dateEra = "Medium";
-    final static String designType = "Old Design"; // is it old design or new design
+    final static String designTypeStr = "Old Design"; // is it old design or new design
     final static String trialTask = " - Date Selection"; // trial task description
-    final static String popupMessage = "You are about to use " + designType + " for " + trialTask + ".";
+    final static String popupMessage = "You are about to use " + designTypeStr + " for " + trialTask + ".";
     final static String instructionsPopUpTitle = "Instructions - Trial "; // trial instructions popup title
     final static String trialCompletePopUpTitle = "Success"; // trial success popup titile
     final static String trialCompletionPopupMessage = "You have successfully completed the Trial " + trialNumber +
@@ -122,6 +122,7 @@ public class Trial2_Old extends AppCompatActivity {
         selectedDate="";
         textViewSelectedDate.setText("");
         CalendarView calendarView = findViewById(R.id.calView);
+        LinearLayout calLayout = findViewById(R.id.calLayout);
         ImageButton calButton =  findViewById(R.id.calButton);
         Button okButton = (Button) findViewById(R.id.okButton);
         calendarView.setVisibility(View.GONE);
@@ -135,6 +136,7 @@ public class Trial2_Old extends AppCompatActivity {
             String selectedDateStr = dayStr+"-"+(month+1)+"-"+year;
             textViewSelectedDate.setText(Common.GetDayOFWeek(selectedDateStr)+" "+selectedDate);
         });
+
         calButton.setOnClickListener(view -> {
             calendarView.setVisibility(View.VISIBLE);
             okButton.setVisibility(View.VISIBLE);
@@ -189,7 +191,11 @@ public class Trial2_Old extends AppCompatActivity {
 
             //successful attempt not equal to total attempts
             if (successAttempts < totalAttempts) {
-                listAttempts.add(new TrialAttempt(successAttempts,timeTaken, noOfTaps, errorCount));
+                int yearDiff =    Common.GetYearDiff(dateToSelect);
+                int monthDiff =Common.GetMonthDiff(dateToSelect,  yearDiff);
+                noOfTaps = noOfTaps + monthDiff;
+                listAttempts.add(new TrialAttempt(successAttempts,
+                        yearDiff,timeTaken, noOfTaps, errorCount));
                 StartNextTrialAttempt(false);
                 LayoutInflater l = (LayoutInflater) getBaseContext().getSystemService(LAYOUT_INFLATER_SERVICE);
                 View successPopUpView = layoutInflater.inflate(R.layout.activity_success, null);
@@ -202,33 +208,34 @@ public class Trial2_Old extends AppCompatActivity {
                 title.setText(trialCompletePopUpTitle);
                 textViewSuccessAttempts.setText(trialCompletionPopupMessage);
 
-                builder.setPositiveButton(popUButtonText, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // save data in list
-                        listAttempts.add(new TrialAttempt(successAttempts,timeTaken, noOfTaps, errorCount));
-                        if (!isFirstTrialActivity) {
+                builder.setPositiveButton(popUButtonText, (dialog, which) -> {
+                    // save data in list
+                    int yearDiff =    Common.GetYearDiff(dateToSelect);
+                    int monthDiff =Common.GetMonthDiff(dateToSelect,  yearDiff);
+                    noOfTaps = noOfTaps + monthDiff;
+                    listAttempts.add(new TrialAttempt(successAttempts,
+                            yearDiff,timeTaken, noOfTaps, errorCount));
+                    if (!isFirstTrialActivity) {
 
-                            Trial trial = new Trial(trialNumber, trialType, new ArrayList<>(),
-                                    totalAttemptsMadeByUser, successAttempts, failedAttempts);
-                            trial.setTrialAttempts(listAttempts);
-                            trials.add(trial);
-                            data.setTrials(trials);
-                            nextScreenIntent.putExtra("Data", data);
-                            trials = new ArrayList<>();
-                        } else {
-                            List<Trial> trials = new ArrayList<>();
-                            Trial trial = new Trial(trialNumber, trialType, new ArrayList<>(),
-                                    totalAttemptsMadeByUser, successAttempts, failedAttempts);
-                            trial.setTrialAttempts(listAttempts);
-                            trials.add(trial);
-                            data.setTrials(trials);
-                            nextScreenIntent.putExtra("Data", data);
-                        }
-                        data = new Data();
-                        listAttempts = new ArrayList<>();
-                        startActivity(nextScreenIntent);
+                        Trial trial = new Trial(trialNumber, designType, new ArrayList<>(),
+                                totalAttemptsMadeByUser, successAttempts, failedAttempts);
+                        trial.setTrialAttempts(listAttempts);
+                        trials.add(trial);
+                        data.setTrials(trials);
+                        nextScreenIntent.putExtra("Data", data);
+                        trials = new ArrayList<>();
+                    } else {
+                        List<Trial> trials = new ArrayList<>();
+                        Trial trial = new Trial(trialNumber, designType, new ArrayList<>(),
+                                totalAttemptsMadeByUser, successAttempts, failedAttempts);
+                        trial.setTrialAttempts(listAttempts);
+                        trials.add(trial);
+                        data.setTrials(trials);
+                        nextScreenIntent.putExtra("Data", data);
                     }
+                    data = new Data();
+                    listAttempts = new ArrayList<>();
+                    startActivity(nextScreenIntent);
                 });
                 builder.setCustomTitle(title);
                 builder.setView(popupView);

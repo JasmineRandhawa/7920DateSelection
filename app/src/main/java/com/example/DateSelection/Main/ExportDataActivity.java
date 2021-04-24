@@ -4,7 +4,6 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,7 +20,6 @@ public class ExportDataActivity extends AppCompatActivity {
     private ClipData myClip;
     static Data data;
     static List<Trial> trials = new ArrayList<Trial>();
-    static List<TrialAttempt> listAttempts;
     static String csvData = "";
 
     @Override
@@ -38,7 +36,6 @@ public class ExportDataActivity extends AppCompatActivity {
         txtData.setText(textViewData);
         Button buttonCopy = (Button) findViewById(R.id.buttonCopy);
         Button buttonEmail = (Button) findViewById(R.id.buttonEmail);
-        Button buttonExit = (Button) findViewById(R.id.buttonExit);
         myClipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 
         buttonCopy.setOnClickListener(v -> {
@@ -54,20 +51,11 @@ public class ExportDataActivity extends AppCompatActivity {
         sendEmail("jasminerandhawa05@gmail.com");
     }
 
-    public void redirectToHomeScreen(View v) {
-        csvData = "";
-        data = new Data();
-        trials = new ArrayList<Trial>();
-        listAttempts= new ArrayList<TrialAttempt>();
-        finish();
-        Intent intent = new Intent(this, InstructionsActivity.class);
-        startActivity(intent);
-    }
      // convert data to string
     private String GenerateStringData(List<Trial> trials) {
         Collections.sort(trials);
         csvData = "";
-        csvData = csvData + "Trialno\tTrialType\tAttemptNo\tNoOfTaps\tTime\tError\t\n";
+        csvData = csvData + "Trialno\tDesignType\tYearsAgo\tAttemptNo\tNoOfTaps\tTime\tError\t\n";
         for (Trial trial : trials) {
             List<TrialAttempt> listAttempts = new ArrayList<>();
             listAttempts.addAll(trial.getTrialAttempts());
@@ -75,6 +63,7 @@ public class ExportDataActivity extends AppCompatActivity {
                 String attempNumber=  (index + 1)+"";
                 csvData = csvData + trial.getTrialNumber() + "\t"
                         + trial.getTrialType() + "\t"
+                        + listAttempts.get(index).getYearsAgo() + "\t"
                         + attempNumber + "\t"
                         + listAttempts.get(index).getNoOfTaps() + "\t"
                         + listAttempts.get(index).getTimeInMillis() + "\t"
@@ -92,7 +81,7 @@ public class ExportDataActivity extends AppCompatActivity {
         String txtViewData = "";
         for (Trial trial : trials) {
             txtViewData = txtViewData + "--------------------------------------------------------------------------------------\n";
-            txtViewData = txtViewData + "TrialNo\t\t\t\t\tTrialType\t\t\tAttemptNo\t\t\tNoOfTaps\tTime\t\t\t\tError\t\t\t\n";
+            txtViewData = txtViewData + "TrialNo\t\t\t\t\tDesignType\t\t\t\tYearsAgo\t\t\tAttemptNo\t\t\tNoOfTaps\tTime\t\t\t\tError\t\t\t\n";
             List<TrialAttempt> listAttempts = new ArrayList<>();
             listAttempts.addAll(trial.getTrialAttempts());
             for (int index = 0; index < listAttempts.size(); index++) {
@@ -101,6 +90,7 @@ public class ExportDataActivity extends AppCompatActivity {
                     attempNumber = attempNumber +" ";
                 txtViewData = txtViewData + trial.getTrialNumber() + "\t\t\t\t\t\t\t\t\t"
                         + trial.getTrialType() + "\t\t\t"
+                        + listAttempts.get(index).getYearsAgo() + "\t\t\t\t\t\t\t\t"
                         + attempNumber + "\t\t\t\t\t\t\t\t\t"
                         + listAttempts.get(index).getNoOfTaps() + "\t\t\t\t\t\t\t\t"
                         + listAttempts.get(index).getTimeInMillis() + "\t\t\t\t\t\t"

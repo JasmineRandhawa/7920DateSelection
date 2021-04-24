@@ -17,8 +17,8 @@ public class Common {
 
     // called to randomly generate date from previous  two year
     public static String GenerateRandomSmallDate(String dateStr) {
-        String[] dates = new String[]{"12-Jun-2020", "25-Jul-2019", "02-Oct-2019", "19-Aug-2020",
-                "21-Aug-2019", "28-Jul-2019", "29-May-2020", "03-Sep-2019",
+        String[] dates = new String[]{"12-Jun-2020", "25-Jul-2019", "02-Oct-2020", "19-Aug-2019",
+                "21-Aug-2020", "28-Jul-2019", "29-May-2020", "03-Sep-2019",
                 "15-Jul-2019", "11-May-2020"};
         if (dateStr.equals("")) {
             return dates[0];
@@ -34,11 +34,43 @@ public class Common {
         }
     }
 
+    public static int GetYearDiff(String dateToBeSelected)
+    {
+        int yearDiff = 0;
+        Calendar cal = Calendar.getInstance();
+        int yearNow = cal.get(Calendar.YEAR);
+        String[] dateParts = new String[3];
+        if(!dateToBeSelected.equals(""))
+            dateParts = dateToBeSelected.split("-");
+        if(dateParts!=null && dateParts.length>2)
+        {
+            int year = Integer.parseInt(dateParts[2]);
+            yearDiff = yearNow - year;
+        }
+        return yearDiff;
+    }
+
+    public static int GetMonthDiff(String dateToBeSelected, int yearDiff)
+    {
+        int monthDiff = 0;
+        Calendar cal = Calendar.getInstance();
+        int monthNow = cal.get(Calendar.MONTH) + 1;
+        String[] dateParts = new String[3];
+        if(!dateToBeSelected.equals(""))
+            dateParts = dateToBeSelected.split("-");
+        if(dateParts!=null && dateParts.length>1)
+        {
+            int month = Integer.parseInt(Common.GetMonthIndex(dateParts[1]));
+            monthDiff = monthNow - month;
+        }
+        return yearDiff * 12 +monthDiff ;
+    }
+
     // called to randomly generate date from previous three years
     public static String GenerateRandomMediumDate(String dateStr) {
-        String[] dates = new String[]{"11-Jul-2019", "27-Jun-2018", "02-Oct-2018", "19-Aug-2019",
-                "21-Aug-2018", "28-Jul-2019", "29-May-2018", "03-Sep-2018",
-                "15-Jul-2018", "11-May-2019"};
+        String[] dates = new String[]{"11-Jul-2017", "27-Jun-2018", "02-Oct-2018", "19-Aug-2017",
+                "21-Aug-2018", "28-Jul-2017", "29-May-2018", "03-Sep-2017",
+                "15-Jul-2018", "11-May-2017"};
         if (dateStr.equals("")) {
             return dates[0];
         } else {
@@ -55,9 +87,9 @@ public class Common {
 
     // called to randomly generate date from previous four year
     public static String GenerateRandomLargeDate(String dateStr) {
-        String[] dates = new String[]{"29-May-2018", "15-Jul-2017", "02-Oct-2018", "19-Aug-2017",
-                "21-Aug-2018", "28-Jul-2017", "29-May-2018", "03-Sep-2017",
-                "15-Jul-2017", "11-May-2017"};
+        String[] dates = new String[]{"29-May-2015", "15-Jul-2016", "02-Oct-2015", "19-Aug-2016",
+                "21-Aug-2016", "28-Jul-2015", "29-May-2015", "03-Sep-2016",
+                "15-Jul-2015", "11-May-2016"};
         if (dateStr.equals("")) {
             return dates[0];
         } else {

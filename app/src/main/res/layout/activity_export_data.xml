@@ -34,16 +34,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"
-                android:layout_marginLeft="0.2in"
+                android:layout_marginLeft="0.6in"
                 android:text="EMAIL DATA" />
-
-            <Button
-                android:id="@+id/buttonExit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="redirectToHomeScreen"
-                android:layout_gravity="end"
-                android:text="EXIT" />
 
         </GridLayout>
 
