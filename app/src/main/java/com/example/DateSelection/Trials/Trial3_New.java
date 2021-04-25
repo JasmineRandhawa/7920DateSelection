@@ -72,7 +72,7 @@ public class Trial3_New extends AppCompatActivity implements MonthList.OnSelectL
     static List<TrialAttempt> listAttempts;
 
     //computed variables
-    final Context context = Trial3_New.this;  //context of current screen
+    final Context context = com.example.DateSelection.Trials.Trial3_New.this;  //context of current screen
     static String dateToSelect = ""; // randomly generated date to select
     Intent nextScreenIntent;  //intent of next screen when trial ends
     String dateSelectedByUser = ""; // date selected by user

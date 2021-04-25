@@ -131,7 +131,7 @@ public class Trial2_Old extends AppCompatActivity {
         calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
             noOfTaps++;
             endTimeInMillis = Calendar.getInstance().getTimeInMillis();
-            String dayStr = dayOfMonth<=0?"0"+dayOfMonth:dayOfMonth+"";
+            String dayStr = dayOfMonth<=9?"0"+dayOfMonth:dayOfMonth+"";
             selectedDate = dayStr +"-" +Common.GetMonthName(month+1)+"-"+year;
             String selectedDateStr = dayStr+"-"+(month+1)+"-"+year;
             textViewSelectedDate.setText(Common.GetDayOFWeek(selectedDateStr)+" "+selectedDate);
